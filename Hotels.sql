@@ -1,139 +1,157 @@
-create database HotelsChain
+﻿create database Homework
 
-------------------------------------
+---------------------------------------
 
-use HotelsChain
+use Homework
 
-create table Hotels(
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	HotelName nvarchar(128) NOT NULL,
-	NumberOfRooms int NOT NULL,
-	HoteAddress nvarchar(128) NOT NULL
+create table Hotels (
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	HotelName nvarchar(100) NOT NULL,
+	HotelCapacity int,
+	HotelState nvarchar(100) NOT NULL,
+	HotelCity nvarchar(100) NOT NULL,
+	HotelAddress nvarchar(100) NOT NULL,
 )
 
 create table Employees (
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	FirstName nvarchar(128) NOT NULL,
-	LastName nvarchar(128) NOT NULL,
-	JobType nvarchar(128) NOT NULL check(JobType = 'room service' or JobType = 'room maid' or JobType = 'receptionist' or JobType = 'cleaner'),
-	HotelId int FOREIGN KEY REFERENCES Hotels(Id) NOT NULL
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	HotelId int FOREIGN KEY REFERENCES Hotels(Id) ON DELETE CASCADE NOT NULL,
+	EmployeeFirstName nvarchar(100) NOT NULL,
+	EmployeeLastName nvarchar(100) NOT NULL,
+	JobType nvarchar(100)
+	CHECK(JobType = 'room service' or JobType = 'room maid' or JobType = 'receptionist' or JobType = 'cleaner' or JobType = 'cook') NOT NULL
 )
 
+
 create table Buyers (
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	FirstName nvarchar(128) NOT NULL,
-	LastName nvarchar(128) NOT NULL,
-	Oib nvarchar(16) NOT NULL,
-	PhoneNumber nvarchar(16),
-	Email nvarchar(64)
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	BuyerFirstName nvarchar(100) NOT NULL,
+	BuyerLastName nvarchar(100) NOT NULL,
+	BuyerOib nvarchar(20) NOT NULL
 )
 
 create table Guests (
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	FirstName nvarchar(128) NOT NULL,
-	LastName nvarchar(128) NOT NULL,
-	PhoneNumber nvarchar(16),
-	Email nvarchar(64) NOT NULL,
-)
-
-create table Reservations (
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	ReservationDate datetime2 NOT NULL,
-	CheckInDate datetime2 NOT NULL,
-	CheckOutDate datetime2 NOT NULL,
-	StayType nvarchar(128) NOT NULL check(StayType = 'obi?ni boravak' or StayType = 'pansion' or StayType = 'polupansion'),
-	Price decimal(9,2) NOT NULL,
-	BuyerId int FOREIGN KEY REFERENCES Buyers(Id) NOT NULL,
-)
-
-create table GuestReservations (
-	GuestId int FOREIGN KEY REFERENCES Guests(Id) NOT NULL,
-	ReservationId int FOREIGN KEY REFERENCES Reservations(Id) NOT NULL,
-	CONSTRAINT GuestReservationsPrimaryKey PRIMARY KEY(GuestId, ReservationId)
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	GuestFirstName nvarchar(100) NOT NULL,
+	GuestLastName nvarchar(100) NOT NULL
 )
 
 create table Rooms (
-	Id int IDENTITY(1,1) PRIMARY KEY,
-	RoomNumber nvarchar(128) NOT NULL,
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	HotelId int FOREIGN KEY REFERENCES Hotels(Id) ON DELETE CASCADE,
 	RoomCapacity int NOT NULL,
-	RoomPrice decimal(9,2) NOT NULL,
-	HotelId int FOREIGN KEY REFERENCES Hotels(Id) NOT NULL,
-	ReservationId int FOREIGN KEY REFERENCES Reservations(Id)
+	RoomNumber nvarchar(5) NOT NULL,
 )
 
-insert into Hotels (HotelName, HoteAddress, NumberOfRooms) VALUES
-('Hotel A', 'Grad A, Ulica A, 1', 5),
-('Hotel B', 'Grad B, Ulica B, 2', 10),
-('Hotel C', 'Grad C, Ulica C, 3', 100),
-('Hotel D', 'Grad D, Ulica D, 4', 200),
-('Hotel E', 'Grad E, Ulica E, 5', 1000)
+create table Stays (
+	Id int IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	BuyerId int FOREIGN KEY REFERENCES Buyers(Id) ON DELETE CASCADE NOT NULL,
+	GuestId int FOREIGN KEY REFERENCES Guests(Id) ON DELETE CASCADE NOT NULL,
+	RoomId int FOREIGN KEY REFERENCES Rooms(Id) ON DELETE CASCADE NOT NULL,
+	TimeOfTransaction datetime2 NOT NULL,
+	CheckInDate datetime2 NOT NULL,
+	CheckOutDate datetime2 NOT NULL,
+	TypeOfStay nvarchar(100)
+		CHECK(TypeOfStay = 'obični boravak' or TypeOfStay = 'polupansion' or TypeOfStay = 'receptionist' or TypeOfStay = 'pansion') NOT NULL,
+	Price float NOT NULL
+)
 
-insert into Employees (FirstName, LastName, JobType, HotelId) VALUES 
-('EmpolyeeName1', 'EmpolyLastName1', 'cleaner', 1),
-('EmpolyeeName2', 'EmpolyLastName2', 'receptionist', 1),
-('EmpolyeeName3', 'EmpolyLastName3', 'cleaner', 1),
-('EmpolyeeName4', 'EmpolyLastName4', 'room service', 1),
-('EmpolyeeName5', 'EmpolyLastName5', 'room maid', 1),
-('EmpolyeeName6', 'EmpolyLastName6', 'cleaner', 2),
-('EmpolyeeName7', 'EmpolyLastName7', 'room service', 2),
-('EmpolyeeName8', 'EmpolyLastName8', 'receptionist', 2),
-('EmpolyeeName9', 'EmpolyLastName9', 'cleaner', 3),
-('EmpolyeeName10', 'EmpolyLastName10', 'room service', 4)
+insert into Hotels (HotelName, HotelCapacity, HotelState, HotelCity, HotelAddress) VALUES
+('Hotel Ladovina', 1000, 'Tunguzija', 'Flegmagrad', 'Vječnog odmora 13'),
+('Kod Kraljice', 1000, 'Tigana', 'Stevanien', 'Nemam inspracije BB'),
+('Adria ski', 1000, 'BiH', 'Kupres', 'Čajuša BB'),
+('Hajdučke vrleti', 1000, 'BiH', 'Blidinje', 'Blidinje BB'),
+('Radisson Blu', 1000, 'RH', 'Split', 'Put Trstenika 19')
 
-insert into Buyers (FirstName, LastName, Oib, PhoneNumber, Email) VALUES
-('buyerName1', 'buyerLastName1', 'buyerOIB1', '111 111 111', 'buyer1@gamil.com'),
-('buyerName2', 'buyerLastName2', 'buyerOIB2', '222 222 222', 'buyer2@gamil.com'),
-('buyerName3', 'buyerLastName3', 'buyerOIB3', '333 333 333', 'buyer3@gamil.com'),
-('buyerName4', 'buyerLastName4', 'buyerOIB4', '444 444 444', 'buyer4@gamil.com'),
-('buyerName5', 'buyerLastName5', 'buyerOIB5', '555 555 555', 'buyer5@gamil.com')
+insert into Employees (EmployeeFirstName, EmployeeLastName, JobType, HotelId) VALUES
+('Božo', 'Petrov', 'room service', 1),
+('Ivo', 'Sanader', 'room maid', 1),
+('Kolinda', 'Grabar-Kitarović', 'receptionist', 1),
+('Zoran', 'Milanović', 'cleaner', 1),
+('Andrej', 'Plenković', 'room service', 2),
+('Vilibor', 'Sinčić', 'room maid', 2),
+('Stipe', 'Mesić', 'cleaner', 2),
+('Ingrid', 'Antičević', 'room service', 3),
+('Davor', 'Božinović', 'cleaner', 3),
+('Milan', 'Bandić', 'cook', 1)
 
-insert into Reservations (ReservationDate, CheckInDate, CheckOutDate, StayType, Price, BuyerId) VALUES
-('2019-12-1 12:00', '2019-12-1 12:00', '2019-12-2 12:00', 'polupansion', 500, 1),
-(GETDATE(), '2020-12-19 12:00', '2021-01-5 12:00', 'polupansion', 500, 1),
-(GETDATE(), '2020-12-1 12:00', '2020-12-3 12:00', 'pansion', 1000, 2),
-(GETDATE(), '2020-12-1 12:00', '2020-12-4 12:00', 'obi?ni boravak', 500, 3),
-(GETDATE(), '2020-12-1 12:00', '2020-12-5 12:00', 'polupansion', 1000, 4),
-(GETDATE(), '2020-12-1 12:00', '2020-12-6 12:00', 'pansion', 1500, 5)
+insert into Buyers (BuyerFirstName, BuyerLastName, BuyerOib) VALUES
+('Dennis', 'Ritchie', 'DR-OIB'),
+('Jonh Ronald Reul', 'Tolkine', 'JRRT-OIB'),
+('Piet', 'Mondrian', 'PM-OIB'),
+('Gordon', 'Freeman', 'GF-OIB'),
+('Bruce', 'Dickinson', 'BD-OIB')
 
-insert into Guests(FirstName, LastName, PhoneNumber, Email) VALUES
-('Dennis', 'Ritchie', '111 111 111', 'Dennis@gamil.com'),
-('Christopher', 'Tolkien', '222 222 222', 'Christopher@gamil.com'),
-('Piet', 'Mondrian', '333 333 333', 'Piet@gamil.com'),
-('Gordon', 'Freeman', '444 444 444', 'Gordon@gamil.com'),
-('Floor', 'Jansen', '555 555 555', 'Floor@gamil.com')
+insert into Guests(GuestFirstName, GuestLastName) VALUES
+('Dennis', 'Ritchie'),
+('Jonh Ronald Reul', 'Tolkine'),
+('Christopher', 'Christopher'),
+('Christoph', 'Waltz'),
+('Joe', 'Satriani'),
+('Bruce', 'Dickinson'),
+('Emiel Regis Rohellec', 'Terzieff-Godefroy'),
+('Irene', 'Jansen'),
+('Floor', 'Jansen'),
+('Antonije', 'Pušić'),
+('Piet', 'Mondrian')
 
-insert into Rooms (RoomNumber, RoomCapacity, RoomPrice, HotelId, ReservationId) VALUES
-(101, 2, 300, 1,1),
-(201, 2, 300, 1,2),
-(111, 3, 500, 2,3),
-(222, 2, 500, 2,4),
-(100, 3, 500, 3,5)
+insert into Rooms(RoomNumber, RoomCapacity, HotelId) VALUES
+('101', 2, 1),
+('102', 2, 1),
+('201', 2, 1),
+('202', 3, 1),
+('301', 3, 1),
+('302', 4, 1),
+('101', 2, 2),
+('102', 2, 2),
+('201', 3, 2),
+('202', 4, 2),
+('101', 2, 3),
+('102', 2, 3),
+('201', 3, 3),
+('202', 4, 3),
+('101', 2, 4),
+('102', 2, 4),
+('201', 3, 4),
+('202', 4, 4),
+('A101', 2, 5),
+('A102', 2, 5),
+('B101', 3, 5),
+('B102', 4, 5)
 
-insert into GuestReservations(GuestId, ReservationId) VALUES
-(1,1),
-(2,2),
-(3,3),
-(4,4),
-(5,5)
+insert into Stays (GuestId, CheckInDate, CheckOutDate, TypeOfStay, RoomId, BuyerId, Price, TimeOfTransaction) VALUES
+(1, '2020-12-11', '2020-12-30', 'pansion', 1, 1, 2000.00, GETDATE()),
+(2, '2019-07-11', '2019-07-30', 'polupansion', 2, 2, 1500.00, GETDATE()),
+(3, '2019-07-11', '2019-07-30', 'pansion', 3, 4, 2000.00, GETDATE()),
+(4, '2019-07-11', '2019-07-30', 'polupansion', 2, 2, 1500.00, GETDATE()),
+(5, '2019-07-11', '2019-07-30', 'obični boravak', 7, 5, 1000.00, GETDATE()),
+(6, '2019-07-11', '2019-07-30', 'polupansion', 8, 5, 100.00, GETDATE()),
+(7, '2019-07-11', '2019-07-30', 'pansion', 12, 4, 2000.00, GETDATE()),
+(8, '2019-07-11', '2019-07-30', 'obični boravak', 13, 3, 1000.00, GETDATE()),
+(9, '2019-07-11', '2019-07-30', 'pansion', 14, 3, 2000.00, GETDATE()),
+(10, '2020-11-11', '2020-11-30', 'polupansion', 15, 3, 1500.00, GETDATE()),
+(11, '2020-12-5', '2020-07-30', 'obični boravak', 2, 3, 1000.00, GETDATE()),
+(7, '2000-07-11', '2000-07-30', 'pansion', 17, 2, 2500.00, GETDATE()),
+(6, '2015-07-11', '2015-07-30', 'obični boravak', 2, 5, 2000.00, GETDATE())
 
+select * from Rooms where HotelId = (select Id from Hotels where HotelName = 'Hotel Ladovina') ORDER BY(RoomNumber)
 
-select * from Rooms where HotelId = (select id from Hotels where HotelName = 'Hotel A') order by RoomNumber ASC
+select * from Rooms where RoomNumber LIKE '1%'
 
-select * from Rooms where RoomNumber like '1%'
+select EmployeeFirstName, EmployeeLastName from Employees where JobType = 'cleaner' AND HotelId = (select Id from Hotels where HotelName = 'Hotel Ladovina')
 
-select FirstName, LastName from Employees where HotelId = (select id from Hotels where HotelName = 'Hotel A') AND JobType = 'cleaner'
+select * from Stays where CheckInDate > '2020-12-01' AND Price > 1000
 
-select * from Reservations where ReservationDate > '2020-12-1 00:00' AND Price > 1000
+select * from Stays where GETDATE() BETWEEN CheckInDate AND CheckOutDate
 
-select * from Reservations where( CheckInDate < GETDATE() AND GETDATE() < CheckOutDate)
+delete from Stays where  CheckOutDate < '2020-01-01'
 
-update Rooms set RoomCapacity = 4 where (HotelId = 2 AND RoomCapacity = 3)
+update Rooms set RoomCapacity = 4 where RoomCapacity = 3 AND HotelId = 2
 
-select * from Reservations where (StayType = 'panison' or StayType = 'polupansion')
+select * from Stays where RoomId = 2 ORDER BY CheckInDate
 
-select * from Reservations ORDER BY(CheckInDate)
+select * from Stays 
+JOIN Rooms ON Rooms.Id = Stays.RoomId
+where HotelId = (select Id from Hotels where HotelName = 'Hotel Ladovina') AND (TypeOfStay = 'pansion' OR TypeOfStay = 'polupansion')
 
-select * from Employees where JobType = 'room service'
-update Employees set JobType = 'receptionist' where JobType = 'room service' and id = 4 or Id = 7
-
---znam da je dosta lo�e napravljeno, ovaj tjedan mi je bio pun komplikacija pa nisam ovo stigo nauciti kako treba
+update TOP(2) Employees set JobType = 'receptionist' where JobType = 'room service'
